@@ -164,7 +164,7 @@ def incr_i(data,n):
 #-----------------------------------------------------------------------------------------------------------------------------
 #Optimeerimine
 Df=D_630HP #<-- uuritav fiiber (mõõteõlal)
-lf=35 #mm <-- fiibri pikkus
+lf=35 # <-- maksimum kombinatsiooni pikkus
 
 #potentsiaalsete võrdlusõla klaaside dispersioonikoefitsendid
 D_630HP = D_koef_f('630HP_disp.xls')
@@ -190,7 +190,7 @@ D_MgF2_0=D_MgF2[1][inte(D_MgF2[0]).index(wl_0)]/1e6
 D_ZnSe_0=D_ZnSe[1][inte(D_ZnSe[0]).index(wl_0)]/1e6
 D_air_0=D_air[1][inte(D_air[0]).index(wl_0)]/1e6
 
-n=20
+n=20 #samm
 D_0=[[n*D_FS_0,n*D_BK7_0,n*D_sap_0,n*D_CaF2_0,n*D_MgF2_0,n*D_ZnSe_0,n*D_air_0],['D_FS','D_BK7','D_sap','D_CaF2','D_MgF2','D_ZnSe','D_air']]
 #D_0=[[n*D_FS_0,n*D_air_0],['D_FS','D_air']]
 print(D_0)
