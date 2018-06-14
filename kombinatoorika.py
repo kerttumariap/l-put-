@@ -11,7 +11,7 @@ def sellmeier(B1,B2,B3,C1,C2,C3):
 
     return formula
 
-#Sellmeieri valemi koefitsendid 
+#Valitud klaaside Sellmeieri valemi koefitsendid 
 quartz_B1=0.6961663
 quartz_B2=0.4079426
 quartz_B3=0.8974794
@@ -140,10 +140,6 @@ def D_koef_f(filename):
     return x[ind:],y[ind:]
 
 
-
-D_630HP = D_koef_f('630HP_disp.xls')
-
-
 #muudame kõik listi liikmed täisarvudeks
 def inte(lst):
     lst=list(lst)
@@ -163,20 +159,21 @@ def incr_i(data,n):
 
 #-----------------------------------------------------------------------------------------------------------------------------
 #Optimeerimine
+D_630HP = D_koef_f('630HP_disp.xls')
 Df=D_630HP #<-- uuritav fiiber (mõõteõlal)
 lf=35 # <-- maksimum kombinatsiooni pikkus
 
-#potentsiaalsete võrdlusõla klaaside dispersioonikoefitsendid
+#Arvutame Sellmeieri valemi koefitsentide põhjal klaaside dispersioonikoefitsendid
 D_630HP = D_koef_f('630HP_disp.xls')
 D_FS=D_koef(quartz_B1,quartz_B2,quartz_B3,quartz_C1,quartz_C2,quartz_C3)
 D_BK7=D_koef(BK7_B1,BK7_B2,BK7_B3,BK7_C1,BK7_C2,BK7_C3)
 D_sap=D_koef(sapphire_B1,sapphire_B2,sapphire_B3,sapphire_C1,sapphire_C2,sapphire_C3)
 D_CaF2=D_koef(CaF2_B1,CaF2_B2,CaF2_B3,CaF2_C1,CaF2_C2,CaF2_C3)
 D_MgF2=D_koef(MgF2_B1,MgF2_B2,MgF2_B3,MgF2_C1,MgF2_C2,MgF2_C3)
-D_ZnSe=D_koef(ZnSe_B1,ZnSe_B2,ZnSe_B3,ZnSe_C1,ZnSe_C2,ZnSe_C3)#-------------------------6
-D_air=D_koef_air()#---------------------------------------------------------------------7
+D_ZnSe=D_koef(ZnSe_B1,ZnSe_B2,ZnSe_B3,ZnSe_C1,ZnSe_C2,ZnSe_C3)
+D_air=D_koef_air()
 
-#wl_0 ehk lambda_0 - optimeerime lainepikkuse 633 nanomeetri jaoks
+#wl_0 ehk lambda_0 - lainepikkus, millele dispersioonikoefitsenti optimeerime
 wl_0=685
 
 #Leiame lainepikkusele lambda_0 vastavad dispersioonikoefitsendi väärtused
@@ -190,11 +187,12 @@ D_MgF2_0=D_MgF2[1][inte(D_MgF2[0]).index(wl_0)]/1e6
 D_ZnSe_0=D_ZnSe[1][inte(D_ZnSe[0]).index(wl_0)]/1e6
 D_air_0=D_air[1][inte(D_air[0]).index(wl_0)]/1e6
 
-n=20 #samm
+# Täpsustame sammu, millega klaaside pikkuseid muudame
+n=20 #20 mm
+
+# Klaaside dispersioonikoefitsendid vastaval lainepikkusel lambda_0 vastava sammu n kohta
 D_0=[[n*D_FS_0,n*D_BK7_0,n*D_sap_0,n*D_CaF2_0,n*D_MgF2_0,n*D_ZnSe_0,n*D_air_0],['D_FS','D_BK7','D_sap','D_CaF2','D_MgF2','D_ZnSe','D_air']]
 #D_0=[[n*D_FS_0,n*D_air_0],['D_FS','D_air']]
-print(D_0)
-print(D_630HP_0)
 
 import itertools as it
 import time
@@ -215,7 +213,7 @@ D_com_sum=list(map(sum, D_com))
 
 #Leiame parima klaaside kombinatsiooni
 #best_fit[0]=dispersioonikoefitsent
-#best_fit[1]=kasutatud klaaside nimed (üks kirje iga 1mm kohta)
+#best_fit[1]=kasutatud klaaside nimed (üks kirje iga sammu pikkuse kohta)
 #best_fit[2]=klaasidega saavutatava dispersioonikoefitsendi erinevus lainepikkusel 633nm fiibri disp.koefitsendist samal lainepikkusel
 best_fit=[0,'nimi',50000]
 best_fit[0]=min(np.array(D_com_sum), key=lambda x:abs(x-D_630HP_0*419))
@@ -231,10 +229,15 @@ klaasid={'D_FS':0,'D_BK7':0,'D_sap':0,'D_CaF2':0,'D_MgF2':0,'D_ZnSe':0,'D_air':0
 
 best_fit_D2=best_fit
 
-# leiame kui pikk peab iga klaas olema
+# Leiame mitme sammu pikkune peab iga klaas olema
 for i in best_fit_D2[1]:
     for j in klaasid.keys():
         if i==j:
             klaasid[j]+=1
-    
+
+# Leiame klaaside pikkused 
+for key in klaasid:
+    klaasid[key] = klaasid[key] * n
+
+# Väljastatakse parim klaasikombinatsioon
 print(klaasid)
